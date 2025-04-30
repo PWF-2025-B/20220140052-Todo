@@ -8,6 +8,8 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                
+                <!-- Search Form -->
                 <div class="p-6 text-gray-900 dark:text-100">
                     <form method="GET" action="{{ route('user.index') }}" class="mb-4">
                         <input 
@@ -22,8 +24,26 @@
                             Search
                         </button>
                     </form>
+
+                    <!-- Flash Messages -->
+                    @if (session('success'))
+                        <p x-data="{ show: true }" x-show="show" x-transition
+                           x-init="setTimeout(() => show = false, 5000)"
+                           class="text-sm text-green-600 dark:text-green-400">
+                            {{ session('success') }}
+                        </p>
+                    @endif
+
+                    @if (session('danger'))
+                        <p x-data="{ show: true }" x-show="show" x-transition
+                           x-init="setTimeout(() => show = false, 5000)"
+                           class="text-sm text-red-600 dark:text-red-400">
+                            {{ session('danger') }}
+                        </p>
+                    @endif
                 </div>
 
+                <!-- User Table -->
                 <div class="relative overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -36,31 +56,54 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($users as $data)
+                            @forelse ($users as $user)
                                 <tr class="odd:bg-white odd:dark:bg-gray-800 even:bg-gray-50 even:dark:bg-gray-700">
-                                    <td scope="row" class="px-6 py-4 font-medium whitespace-nowrap dark:text-white">
-                                        {{ $data->id }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {{ $data->name }}
-                                    </td>
-                                    <td class="hidden px-6 py-4 md:block">
-                                        {{ $data->email }}
-                                    </td>
+                                    <td class="px-6 py-4 font-medium whitespace-nowrap dark:text-white">{{ $user->id }}</td>
+                                    <td class="px-6 py-4">{{ $user->name }}</td>
+                                    <td class="hidden px-6 py-4 md:block">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <p>
-                                            {{ $data->todos->count() }}
+                                            {{ $user->todos->count() }}
                                             <span>
                                                 <span class="text-green-600 dark:text-green-400">
-                                                    ({{ $data->todos->where('is_done', true)->count() }})
+                                                    ({{ $user->todos->where('is_done', true)->count() }})
                                                 </span> / 
                                                 <span class="text-blue-600 dark:text-blue-400">
-                                                    {{ $data->todos->where('is_done', false)->count() }}
+                                                    {{ $user->todos->where('is_done', false)->count() }}
                                                 </span>
                                             </span>
                                         </p>
                                     </td>
                                     <td class="px-6 py-4">
+                                        <div class="flex space-x-3">
+                                            <!-- Admin Access -->
+                                            @if ($user->is_admin)
+                                                <form action="{{ route('user.removeadmin', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove admin access?')">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                                                        Remove Admin
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('user.makeadmin', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to make this user an admin?')">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="text-red-600 dark:text-red-400 whitespace-nowrap">
+                                                        Make Admin
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            <!-- Delete Button -->
+                                            <form action="{{ route('user.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 dark:text-red-400 whitespace-nowrap">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -74,6 +117,7 @@
                     </table>
                 </div>
 
+                <!-- Pagination -->
                 <div class="px-6 py-5">
                     {{ $users->links() }}
                 </div>
