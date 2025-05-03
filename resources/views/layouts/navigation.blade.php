@@ -18,8 +18,13 @@
                     <x-nav-link :href="route('todo.index')" :active="request()->routeIs('todo.index')">
                         {{ __('Todo') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.index')">
-                        {{ __('User') }}
+                    @can('admin')
+                        <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.index')">
+                            {{ __('User') }}
+                        </x-nav-link>
+                    <!--<x-nav-link :href="route('user.index')" :active="request()->routeIs('user.index')">
+                       {{ __('User') }} -->
+                        @endcan
                     </x-nav-link>
                 </div>
             </div>
