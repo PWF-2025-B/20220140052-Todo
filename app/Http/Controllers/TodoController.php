@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Todo;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 
 class TodoController extends Controller
@@ -23,19 +24,22 @@ class TodoController extends Controller
 
     public function create()
     {
-        return view('todo.create');
+        $categories = Category::where('user_id', Auth::id())->get();
+        return view('todo.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         Todo::create([
-            'title'   => ucfirst($request->title),
-            'user_id' => Auth::id(),
-            'is_done' => false,
+            'title'       => ucfirst($request->title),
+            'user_id'     => Auth::id(),
+            'category_id' => $request->category_id,
+            'is_done'     => false,
         ]);
 
         return redirect()->route('todo.index')->with('success', 'Todo created successfully.');
@@ -44,7 +48,8 @@ class TodoController extends Controller
     public function edit(Todo $todo)
     {
         if (Auth::id() === $todo->user_id) {
-            return view('todo.edit', compact('todo'));
+            $categories = Category::where('user_id', Auth::id())->get();
+            return view('todo.edit', compact('todo', 'categories'));
         }
 
         return redirect()->route('todo.index')->with('danger', 'You are not authorized to edit this todo!');
@@ -58,10 +63,12 @@ class TodoController extends Controller
 
         $request->validate([
             'title' => 'required|max:255',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $todo->update([
-            'title' => ucfirst($request->title),
+            'title'       => ucfirst($request->title),
+            'category_id' => $request->category_id,
         ]);
 
         return redirect()->route('todo.index')->with('success', 'Todo updated successfully!');
@@ -72,9 +79,8 @@ class TodoController extends Controller
         if (Auth::id() === $todo->user_id) {
             $todo->update(['is_done' => true]);
             return redirect()->route('todo.index')->with('success', 'Todo completed successfully!');
-        }else{
-
-        return redirect()->route('todo.index')->with('danger', 'You are not authorized to complete this todo!');
+        } else {
+            return redirect()->route('todo.index')->with('danger', 'You are not authorized to complete this todo!');
         }
     }
 
@@ -83,12 +89,10 @@ class TodoController extends Controller
         if (Auth::id() === $todo->user_id) {
             $todo->update(['is_done' => false]);
             return redirect()->route('todo.index')->with('success', 'Todo marked as not completed.');
-        }else {
-
-        return redirect()->route('todo.index')->with('danger', 'You are not authorized to uncomplete this todo!');
+        } else {
+            return redirect()->route('todo.index')->with('danger', 'You are not authorized to uncomplete this todo!');
         }
     }
-    
 
     public function destroy(Todo $todo)
     {

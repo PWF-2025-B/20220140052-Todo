@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
 
 Route::resource('todo', TodoController::class)->except(['show']);
 
@@ -35,4 +36,5 @@ Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.de
 Route::patch('/user/{user}/makeadmin', [UserController::class, 'makeadmin'])->name('user.makeadmin');
 Route::patch('/user/{user}/removeadmin', [UserController::class, 'removeadmin'])->name('user.removeadmin');
 
+Route::resource('/category', CategoryController::class);
 require __DIR__.'/auth.php';

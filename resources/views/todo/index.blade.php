@@ -37,6 +37,7 @@
                         <thead class="text-sm text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" class="px-6 py-3">Title</th>
+                                <th scope="col" class="px-6 py-3">Category</th>
                                 <th scope="col" class="px-6 py-3">Status</th>
                                 <th scope="col" class="px-6 py-3">Actions</th>
                             </tr>
@@ -48,6 +49,11 @@
                                         <a href="{{ route('todo.edit', $todo) }}" class="hover:underline text-xs">
                                             {{ $todo->title }}
                                         </a>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if ($todo->category)
+                                            {{ $todo->category->title }}
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4">
                                         @if (!$todo->is_done)
@@ -90,7 +96,7 @@
                                 </tr>
                             @empty
                                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                                    <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                         No todos found.
                                     </td>
                                 </tr>
