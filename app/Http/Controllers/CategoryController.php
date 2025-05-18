@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 class CategoryController extends Controller
 {
     /**
@@ -13,10 +13,15 @@ class CategoryController extends Controller
     public function index()
     {
         // Eager load the 'todos' relationship to avoid null errors
-        $categories = Category::with('todos')  // Ensure you're using 'todos' in the relation
-            ->where('user_id', auth()->user()->id)
-            ->get();
+        //$categories = Category::with('todos')  // Ensure you're using 'todos' in the relation
+        //    ->where('user_id', auth()->user()->id)
+        //    ->get();
     
+        //return view('category.index', compact('categories'));
+
+        $categories = Category::with('todos')
+        ->where('user_id', Auth::id())
+        ->get();
         return view('category.index', compact('categories'));
     }
 
