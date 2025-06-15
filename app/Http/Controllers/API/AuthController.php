@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -59,9 +60,40 @@ class AuthController extends Controller
 
     /**
      * Logout user yang sedang login.
+     * 
+     * Menghapus token JWT agar tidak bisa digunakan lagi.
      */
-    public function logout()
+
+    #[Response(
+        status: 200,
+        content: [
+            'status_code' => 200,
+            'message' => 'Logout berhasil. Token telah dihapus.',
+        ]
+    )]
+    #[Response(
+        status: 500,
+        content: [
+            'status_code' => 500,
+            'message' => 'Gagal Logout, terjadi kesalahan.',
+        ]
+    )]
+    public function logout(Request $request)
     {
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Logout berhasil. Token telah dihapus.',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Gagal Logout, terjadi kesalahan.',
+            ], 500);
+        }
+
         Auth::guard('api')->logout();
         return response()->json([
             'message' => 'Logout berhasil',
